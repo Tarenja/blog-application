@@ -38,7 +38,7 @@ const User = sequelize.define('users', {
   timestamps: false;
 })
 
-//posts have a one-to-many relationship with users
+//posts have a many-to-one relationship with users and a one-to-many relationship with comments
 // const Posts = sequelize.define('posts', {
 //   title: {
 //     type: Sequelize.STRING,
@@ -48,3 +48,12 @@ const User = sequelize.define('users', {
 //     type: Sequelize.TEXT,
 //   }
 // })
+
+//comments have a many-to-one relationship with users and with posts
+// const Comment = sequelize.define('comments', {
+//   body: {
+//     type: Sequelize.TEXT
+//   }
+// });
+
+//Routing

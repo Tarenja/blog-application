@@ -39,22 +39,24 @@ const User = sequelize.define('users', {
 })
 
 //posts have a many-to-one relationship with users and a one-to-many relationship with comments
-// const Posts = sequelize.define('posts', {
-//   title: {
-//     type: Sequelize.STRING,
-//     unique: true
-//   },
-//   body: {
-//     type: Sequelize.TEXT
-//   }
-// })
+const Posts = sequelize.define('posts', {
+  title: {
+    type: Sequelize.STRING,
+    unique: true
+  },
+  body: {
+    type: Sequelize.TEXT
+  }
+})
 
 //comments have a many-to-one relationship with users and with posts
-// const Comment = sequelize.define('comments', {
-//   body: {
-//     type: Sequelize.TEXT
-//   }
-// });
+const Comment = sequelize.define('comments', {
+  body: {
+    type: Sequelize.TEXT
+  }
+});
+
+sequelize.sync();
 
 //Routing, login form is on index page
 app.get('/', (req, res) => {
@@ -131,11 +133,6 @@ app.get('/logout', (req, res) =>{
 	})
 });
 
-sequelize.sync().then(() => {
-		const server = app.listen(3000, () => {
-			console.log('Example app listening on port: ' + server.address().port);
-		})
-	})
-  .catch((error) => {
-    console.error('sync failed: ' + error)
-  })
+const server = app.listen(3000, () => {
+  console.log('Example app listening on port: ' + server.address().port);
+})

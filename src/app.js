@@ -17,7 +17,7 @@ const sequelize = new Sequelize('blog', process.env.POSTGRES_USER, process.env.P
 app.use(session({
   secret: "such secret, many wows",
   saveUninitialized: true,
-  resave: true
+  resave: false
 }));
 
 //model definition
@@ -26,34 +26,113 @@ const User = sequelize.define('users', {
   username: {
     type: Sequelize.STRING,
     unique: true
-  }
+  },
   email: {
     type: Sequelize.STRING,
     unique: true
-  }
+  },
   password: {
     type: Sequelize.STRING
   }
 }, {
-  timestamps: false;
+  timestamps: false
 })
 
 //posts have a many-to-one relationship with users and a one-to-many relationship with comments
-// const Posts = sequelize.define('posts', {
-//   title: {
-//     type: Sequelize.STRING,
-//     unique: true
-//   }
-//   body: {
-//     type: Sequelize.TEXT,
-//   }
-// })
+const Posts = sequelize.define('posts', {
+  title: {
+    type: Sequelize.STRING,
+    unique: true
+  },
+  body: {
+    type: Sequelize.TEXT
+  }
+})
 
 //comments have a many-to-one relationship with users and with posts
-// const Comment = sequelize.define('comments', {
-//   body: {
-//     type: Sequelize.TEXT
-//   }
-// });
+const Comment = sequelize.define('comments', {
+  body: {
+    type: Sequelize.TEXT
+  }
+});
 
-//Routing
+sequelize.sync();
+
+//Routing, login form is on index page
+app.get('/', (req, res) => {
+  res.render('index', {
+    message: req.query.message,
+    user: req.session.user
+  });
+});
+
+app.get('/register', (req,res) => {
+  res.render('register');
+})
+
+app.post('/register', (req,res) => {
+  User.create({
+    username: req.body.username,
+    email: req.body.email,
+    password: req.body.password
+  })
+  .then((user) => {
+    req.session.user = user;
+    res.redirect('/profile')
+  })
+});
+
+app.get('/profile', (req,res) => {
+  const user = req.session.user;
+  if (user === undefined) {
+    res.redirect('/?message=' + encodeURIComponent("Please log in to view your profile."));
+  } else {
+    res.render('profile', {
+      user: user
+    })
+  }
+});
+
+app.post('/login', (req, res) => {
+  if (req.body.username.length === 0) {
+    res.redirect('/?message=' + encodeURIComponent("Please fill in your username."))
+    return;
+  }
+  if (req.body.password.length === 0) {
+    res.redirect('/?message=' + encodeURIComponent("Please fill in your password."))
+    return;
+  }
+  const username = req.body.username;
+  const password = req.body.password;
+
+  User.findOne({
+    where: {
+      username: req.body.username
+    }
+  })
+  .then((user) => {
+    if (user !== null && password === user.password) {
+      req.session.user = user;
+      res.redirect('/profile');
+    } else {
+      res.redirect('/?message=' + encodeURIComponent("Invalid email or password."));
+    }
+  })
+  .catch((error) => {
+    console.error(error);
+    res.redirect('/?message=' + encodeURIComponent("Invalid email or password."));
+  });
+});
+
+app.get('/logout', (req, res) =>{
+	req.session.destroy(function(error) {
+		if(error) {
+			throw error;
+		}
+		res.redirect('/?message=' + encodeURIComponent("Successfully logged out."));
+	})
+});
+
+const server = app.listen(3000, () => {
+  console.log('Example app listening on port: ' + server.address().port);
+})

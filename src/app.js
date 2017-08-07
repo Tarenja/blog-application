@@ -78,11 +78,11 @@ app.post('/register', (req,res) => {
   })
   .then((user) => {
     req.session.user = user;
-    res.redirect('/profile')
+    res.redirect(`/users/${user.username}`)
   })
 });
 
-app.get('/profile', (req,res) => {
+app.get('/users/:username', (req,res) => {
   const user = req.session.user;
   if (user === undefined) {
     res.redirect('/?message=' + encodeURIComponent("Please log in to view your profile."));
@@ -113,7 +113,7 @@ app.post('/login', (req, res) => {
   .then((user) => {
     if (user !== null && password === user.password) {
       req.session.user = user;
-      res.redirect('/profile');
+      res.redirect(`/users/${user.username}`);
     } else {
       res.redirect('/?message=' + encodeURIComponent("Invalid email or password."));
     }

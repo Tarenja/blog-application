@@ -42,7 +42,6 @@ const User = sequelize.define('users', {
 const Posts = sequelize.define('posts', {
   title: {
     type: Sequelize.STRING,
-    unique: true
   },
   body: {
     type: Sequelize.TEXT
@@ -152,8 +151,8 @@ app.get('/posts', (req, res)=> {
     Posts.findAll()
       .then((allPosts) => {
         res.render('allposts', {
-          user: user.username,
-          postList: allPosts
+          postList: allPosts,
+          user: user
         })
       })
     .catch((error) => {
@@ -169,10 +168,27 @@ app.get('/posts/new', (req, res) => {
 app.post('/posts/new', (req, res) => {
   Posts.create({
     title: req.body.title,
-    body: req.body.body
+    body: req.body.body,
+    userId: req.session.user.id
   })
   .then(() => {
     res.redirect('/posts');
+  })
+});
+
+app.get('/posts/user', (req, res) => {
+  const user = req.session.user;
+  const userID = req.session.user.id;
+  Posts.findAll({
+    where: {
+      userId: userID
+    }
+  })
+  .then((myPosts) => {
+    res.render('userposts', {
+      userPosts: myPosts,
+      user: user
+    })
   })
 });
 

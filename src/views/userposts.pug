@@ -3,14 +3,14 @@ html
 	head
 	body
 		div
-			if postList.length != 0
-				each post in postList
+			if userPosts.length != 0
+				each post in userPosts
 					ul
 						li= post.title
 						li= post.body
 						br
 			else
-				h1 No posts yet!
+				h1 You didn't make any posts yet!
 				br
 		a(href='/posts/new') Create New Post
 		br

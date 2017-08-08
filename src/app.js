@@ -36,7 +36,7 @@ const User = sequelize.define('users', {
   }
 }, {
   timestamps: false
-})
+});
 
 //posts have a many-to-one relationship with users and a one-to-many relationship with comments
 const Posts = sequelize.define('posts', {
@@ -47,14 +47,25 @@ const Posts = sequelize.define('posts', {
   body: {
     type: Sequelize.TEXT
   }
-})
+}, {
+  timestamps: false
+});
 
 //comments have a many-to-one relationship with users and with posts
-const Comment = sequelize.define('comments', {
+const Comments = sequelize.define('comments', {
   body: {
     type: Sequelize.TEXT
   }
+}, {
+  timestamps: false
 });
+
+User.hasMany(Posts);
+User.hasMany(Comments);
+Posts.hasMany(Comments);
+Posts.belongsTo(User);
+Comments.belongsTo(User);
+Comments.belongsTo(Posts);
 
 sequelize.sync();
 
@@ -131,6 +142,38 @@ app.get('/logout', (req, res) =>{
 		}
 		res.redirect('/?message=' + encodeURIComponent("Successfully logged out."));
 	})
+});
+
+app.get('/posts', (req, res)=> {
+  const user = req.session.user;
+  if (user === undefined) {
+    res.redirect('/?message=' + encodeURIComponent("Please log in to view the posts."));
+  } else {
+    Posts.findAll()
+      .then((allPosts) => {
+        res.render('allposts', {
+          user: user.username,
+          postList: allPosts
+        })
+      })
+    .catch((error) => {
+        console.error(error);
+    });
+  };
+});
+
+app.get('/posts/new', (req, res) => {
+  res.render('newpost');
+});
+
+app.post('/posts/new', (req, res) => {
+  Posts.create({
+    title: req.body.title,
+    body: req.body.body
+  })
+  .then(() => {
+    res.redirect('/posts');
+  })
 });
 
 const server = app.listen(3000, () => {

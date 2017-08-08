@@ -5,9 +5,11 @@ html
 		a(href='/register') Register Here
 		br
 		if user
-			a(href='/users/' + user.username) view profile
+			a(href='/users/' + user.username) View Profile
 			br
-			a(href='/logout') log out
+			a(href='/posts') View All Posts
+			br
+			a(href='/logout') Logout
 			br
 		else
 			

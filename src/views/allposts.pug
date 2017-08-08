@@ -1,0 +1,22 @@
+doctype html
+html
+	head
+	body
+		div
+			if postList.length != 0
+				each post in postList
+					ul
+						li= post.title
+						li= post.body
+						li Posted by: #{user}
+						br
+			else
+				h1 No posts yet!
+				br
+		a(href='/posts/new') Create New Post
+		br
+		a(href='/') Home
+		br
+		a(href='/users/' + user.username) View Profile
+		br
+		a(href='/logout') Logout

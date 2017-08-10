@@ -6,7 +6,7 @@ html
 			if userPosts.length != 0
 				each post in userPosts
 					ul
-						li= post.title
+						a(href='/posts/' + post.id): li #{post.title}
 						li= post.body
 						br
 			else
@@ -16,7 +16,7 @@ html
 		br
 		a(href='/') Home
 		br
-		a(href='/posts/user') View My Posts
+		a(href='/posts') View All Posts
 		br
 		a(href='/users/' + user.username) View Profile
 		br

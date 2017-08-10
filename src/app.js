@@ -148,7 +148,7 @@ app.get('/posts', (req, res)=> {
   if (user === undefined) {
     res.redirect('/?message=' + encodeURIComponent("Please log in to view the posts."));
   } else {
-    Posts.findAll()
+      Posts.findAll()
       .then((allPosts) => {
         res.render('allposts', {
           postList: allPosts,
@@ -166,17 +166,29 @@ app.get('/posts/new', (req, res) => {
 });
 
 app.post('/posts/new', (req, res) => {
-  Posts.create({
-    title: req.body.title,
-    body: req.body.body,
-    userId: req.session.user.id
+  const user = req.session.user.username;
+  const title = req.body.title;
+  const body = req.body.body;
+  const userId = req.session.user.id;
+  User.findOne({
+    where: {username: user}
   })
-  .then(() => {
+  .then((user) => {
+    return user.createPost({
+      title: title,
+      body: body,
+      userId: userId
+    })
+  })
+  .then((post) => {
     res.redirect('/posts');
   })
+  .catch((error) => {
+      console.error(error);
+  });
 });
 
-app.get('/posts/user', (req, res) => {
+app.get('/posts/:user', (req, res) => {
   const user = req.session.user;
   const userID = req.session.user.id;
   Posts.findAll({
@@ -190,6 +202,71 @@ app.get('/posts/user', (req, res) => {
       user: user
     })
   })
+  .catch((error) => {
+      console.error(error);
+  });
+});
+
+app.get('/posts/:postId', function(req, res){
+	const postId = req.params.postId;
+  var user = req.session.user;
+	if (user === undefined) {
+        res.redirect('/?message=' + encodeURIComponent("Please log in."));
+  } else {
+    User.findAll()
+    .then((users) => {
+      Posts.findOne({
+        where: {
+          id: postId
+        },
+        include: [{
+          model: Comments,
+          as: 'comments'
+        }]
+      })
+      .then(function(post){
+        console.log(post);
+    		res.render("post", {post: post, postId: postId, users: users});
+    	})
+      .catch((error) => {
+        console.error(error);
+      });
+    });
+  };
+});
+
+// app.get('/comments', (req, res) => {
+//   Comments.findAll()
+//   .then((allComments) => {
+//     console.log(allComments.body);
+//     res.send({
+//       postComments: allComments
+//     })
+//   });
+// });
+
+app.post('/comments', (req, res) => {
+  const user = req.session.user;
+  const commentText = req.body.body;
+  const postComment = req.body.postId;
+  if (user === undefined) {
+    res.redirect('/?message=' + encodeURIComponent("Please log in to post a comment."));
+  } else {
+    User.findOne({
+      where: {username: user.username}
+    })
+    .then((user) => {
+      return user.createComment({
+        body: commentText,
+        user: user,
+        postId: postComment
+      });
+    })
+    .then((userComment) => {
+      console.log(userComment.body);
+      res.redirect(`/posts/${req.body.postId}`);
+    });
+  };
 });
 
 const server = app.listen(3000, () => {

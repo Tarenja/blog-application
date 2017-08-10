@@ -6,8 +6,9 @@ html
 			if postList.length != 0
 				each post in postList
 					ul
-						li= post.title
+						a(href='/posts/' + post.id): li #{post.title}
 						li= post.body
+						//- li Posted by: #{user.username}
 						br
 			else
 				h1 No posts yet!

@@ -1,0 +1,39 @@
+doctype html
+html
+	head
+		script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+	body
+		div
+			a(href='/posts') Back to All Posts
+			each user in users
+				if user.id === post.userId
+					ul
+						li= post.title
+						li= post.body
+						li By: #{user.username}
+						br
+		div
+			p#comments Comments:
+			each comment in post.comments
+				each user in users
+					if comment.postId === post.id
+						if comment.userId === user.id
+							ul#commentList
+								li #{user.username} commented:
+								li #{comment.body}
+							br
+							
+			p#commentFormView Add A New Comment
+				form#commentForm(action='/comments' method='post')
+					textarea(minlength='5' rows="10" cols="25" name='body' placeholder='Enter your comment here' required)
+					input(type='submit' value='Create Comment' id='submit')
+					input(type='hidden' name='postId' value=post.id)
+					br
+		script.
+			$( document ).ready(() => {
+				$('#commentForm').hide();
+				$('#commentFormView').click(() => {
+					$('#commentForm').toggle();
+				})
+
+			});

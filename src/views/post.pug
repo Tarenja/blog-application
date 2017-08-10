@@ -17,7 +17,7 @@ html
 					ul
 						li= post.title
 						li= post.body
-						li By: #{user.username}
+						li.chip By: #{user.username}
 						br
 			div
 				p#comments Comments:
@@ -26,13 +26,13 @@ html
 						if comment.postId === post.id
 							if comment.userId === user.id
 								ul#commentList
-									li #{user.username} commented:
 									li #{comment.body}
+									li.chip - #{user.username}
 								br
 				p#commentFormView Add A New Comment
 					form#commentForm(action='/comments' method='post')
 						textarea(minlength='5' rows="10" cols="25" name='body' placeholder='Enter your comment here' required)
-						input(type='submit' value='Create Comment' id='submit')
+						input.btn(type='submit' value='Create Comment' id='submit')
 						input(type='hidden' name='postId' value=post.id)
 						br
 			script.

@@ -10,10 +10,11 @@ html
 				li: a(href='/') Home
 				li: a(href='/users/' + user.username) Profile
 				li: a(href='/posts/user') My Posts
-				li: a(href='/posts') All Posts
+				li.active: a(href='#') All Posts
 				li: a(href='/logout') Logout
 
 		div.container
+			a(href='/posts/new') Create New Post
 				if postList.length != 0
 					each post in postList
 						each postUser in users
@@ -21,7 +22,7 @@ html
 								ul
 									a(href='/posts/' + post.id): li #{post.title}
 									li= post.body
-									li Posted by: #{postUser.username}
+									li.chip Posted by: #{postUser.username}
 									br
 				else
 					h1 No posts yet!

@@ -95,7 +95,7 @@ app.post('/register', (req,res) => {
 app.get('/users/:username', (req,res) => {
   const user = req.session.user;
   if (user === undefined) {
-    res.redirect('/?message=' + encodeURIComponent("Please log in to view your profile."));
+    res.redirect('/?message=' + encodeURIComponent("Please log in"));
   } else {
     res.render('profile', {
       user: user
@@ -146,7 +146,7 @@ app.get('/logout', (req, res) =>{
 app.get('/posts', (req, res)=> {
   const user = req.session.user;
   if (user === undefined) {
-    res.redirect('/?message=' + encodeURIComponent("Please log in to view the posts."));
+    res.redirect('/?message=' + encodeURIComponent("Please log in"));
   } else {
       User.findAll()
       .then((users) => {
@@ -245,7 +245,7 @@ app.post('/comments', (req, res) => {
   const commentText = req.body.body;
   const postComment = req.body.postId;
   if (user === undefined) {
-    res.redirect('/?message=' + encodeURIComponent("Please log in to post a comment."));
+    res.redirect('/?message=' + encodeURIComponent("Please log in"));
   } else {
     User.findOne({
       where: {username: user.username}

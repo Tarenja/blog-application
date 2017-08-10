@@ -8,7 +8,7 @@ html
 		nav
 			ul#nav-mobile.right.hide-on-med-and-down
 				li: a(href='/') Home
-				li: a(href='/logout') Logout
+				li.active: a(href='#') Register Here
 				
 		div.container
 			h3 Sign up form
@@ -16,6 +16,6 @@ html
 					input(type='text', name='username',placeholder='Enter your username')
 					input(type='text', name='email', placeholder='Enter your email')
 					input(type='password', name='password', placeholder='Choose a password')
-					button.btn.btn-default#signup(type="submit", name="submit") CREATE NEW ACCOUNT
+					button.btn(type="submit", name="submit") Create New Account
 			br
 		script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/js/materialize.min.js")

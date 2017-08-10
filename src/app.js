@@ -42,7 +42,6 @@ const User = sequelize.define('users', {
 const Posts = sequelize.define('posts', {
   title: {
     type: Sequelize.STRING,
-    unique: true
   },
   body: {
     type: Sequelize.TEXT
@@ -149,16 +148,21 @@ app.get('/posts', (req, res)=> {
   if (user === undefined) {
     res.redirect('/?message=' + encodeURIComponent("Please log in to view the posts."));
   } else {
-    Posts.findAll()
-      .then((allPosts) => {
-        res.render('allposts', {
-          user: user.username,
-          postList: allPosts
+      User.findAll()
+      .then((users) => {
+        Posts.findAll()
+        .then((allPosts) => {
+          res.render('allposts', {
+            postList: allPosts,
+            user: user,
+            users: users
+          })
         })
-      })
-    .catch((error) => {
-        console.error(error);
-    });
+      .catch((error) => {
+          console.error(error);
+      });
+    })
+
   };
 });
 
@@ -167,13 +171,97 @@ app.get('/posts/new', (req, res) => {
 });
 
 app.post('/posts/new', (req, res) => {
-  Posts.create({
-    title: req.body.title,
-    body: req.body.body
+  const user = req.session.user.username;
+  const title = req.body.title;
+  const body = req.body.body;
+  const userId = req.session.user.id;
+  User.findOne({
+    where: {username: user}
   })
-  .then(() => {
+  .then((user) => {
+    return user.createPost({
+      title: title,
+      body: body,
+      userId: userId
+    })
+  })
+  .then((post) => {
     res.redirect('/posts');
   })
+  .catch((error) => {
+      console.error(error);
+  });
+});
+
+app.get('/posts/user', (req, res) => {
+  const user = req.session.user;
+  const userID = req.session.user.id;
+  Posts.findAll({
+    where: {
+      userId: userID
+    }
+  })
+  .then((myPosts) => {
+    res.render('userposts', {
+      userPosts: myPosts,
+      user: user
+    })
+  })
+  .catch((error) => {
+      console.error(error);
+  });
+});
+
+app.get('/posts/:postId', function(req, res){
+	const postId = req.params.postId;
+  const user = req.session.user;
+	if (user === undefined) {
+        res.redirect('/?message=' + encodeURIComponent("Please log in."));
+  } else {
+    User.findAll()
+    .then((users) => {
+      Posts.findOne({
+        where: {
+          id: postId
+        },
+        include: [{
+          model: Comments,
+          as: 'comments'
+        }]
+      })
+      .then(function(post){
+        console.log(post);
+    		res.render("post", {post: post, postId: postId, users: users});
+    	})
+      .catch((error) => {
+        console.error(error);
+      });
+    });
+  };
+});
+
+app.post('/comments', (req, res) => {
+  const user = req.session.user;
+  const commentText = req.body.body;
+  const postComment = req.body.postId;
+  if (user === undefined) {
+    res.redirect('/?message=' + encodeURIComponent("Please log in to post a comment."));
+  } else {
+    User.findOne({
+      where: {username: user.username}
+    })
+    .then((user) => {
+      return user.createComment({
+        body: commentText,
+        user: user,
+        postId: postComment
+      });
+    })
+    .then((userComment) => {
+      console.log(userComment.body);
+      res.redirect(`/posts/${req.body.postId}`);
+    });
+  };
 });
 
 const server = app.listen(3000, () => {

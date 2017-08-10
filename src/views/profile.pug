@@ -1,14 +1,18 @@
 doctype html
 html
 	head
+		script(src='http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js')
+		link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
+		link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/css/materialize.min.css")
 	body
-		h2 Welcome #{user.username}
-		a(href='/') Home
-		br
-		a(href='/posts/new') Create New Post
-		br
-		a(href='/posts/user') View My Posts
-		br
-		a(href='/posts') View All Posts
-		br
-		a(href='/logout') Logout
+		nav
+			ul#nav-mobile.right.hide-on-med-and-down
+				li: a(href='/') Home
+				li: a(href='/users/' + user.username) Profile
+				li: a(href='/posts/user') My Posts
+				li: a(href='/posts') All Posts
+				li: a(href='/logout') Logout
+				
+		div.container
+			h1 Welcome #{user.username}
+		script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/js/materialize.min.js")

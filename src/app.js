@@ -148,16 +148,21 @@ app.get('/posts', (req, res)=> {
   if (user === undefined) {
     res.redirect('/?message=' + encodeURIComponent("Please log in to view the posts."));
   } else {
-      Posts.findAll()
-      .then((allPosts) => {
-        res.render('allposts', {
-          postList: allPosts,
-          user: user
+      User.findAll()
+      .then((users) => {
+        Posts.findAll()
+        .then((allPosts) => {
+          res.render('allposts', {
+            postList: allPosts,
+            user: user,
+            users: users
+          })
         })
-      })
-    .catch((error) => {
-        console.error(error);
-    });
+      .catch((error) => {
+          console.error(error);
+      });
+    })
+
   };
 });
 
@@ -188,7 +193,7 @@ app.post('/posts/new', (req, res) => {
   });
 });
 
-app.get('/posts/:user', (req, res) => {
+app.get('/posts/user', (req, res) => {
   const user = req.session.user;
   const userID = req.session.user.id;
   Posts.findAll({
@@ -209,7 +214,7 @@ app.get('/posts/:user', (req, res) => {
 
 app.get('/posts/:postId', function(req, res){
 	const postId = req.params.postId;
-  var user = req.session.user;
+  const user = req.session.user;
 	if (user === undefined) {
         res.redirect('/?message=' + encodeURIComponent("Please log in."));
   } else {
@@ -234,16 +239,6 @@ app.get('/posts/:postId', function(req, res){
     });
   };
 });
-
-// app.get('/comments', (req, res) => {
-//   Comments.findAll()
-//   .then((allComments) => {
-//     console.log(allComments.body);
-//     res.send({
-//       postComments: allComments
-//     })
-//   });
-// });
 
 app.post('/comments', (req, res) => {
   const user = req.session.user;

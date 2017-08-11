@@ -5,10 +5,9 @@ html
 		link(href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet")
 		link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/css/materialize.min.css")
 	body
-		nav
+		nav.teal.lighten-2
 			ul#nav-mobile.right.hide-on-med-and-down
 				li: a(href='/') Home
-				li: a(href='/users/' + user.username) Profile
 				li: a(href='/posts/user') My Posts
 				li: a(href='/posts') All Posts
 				li: a(href='/logout') Logout
@@ -24,7 +23,6 @@ html
 				br
 				textarea#body(minlength='5' rows="20" cols="50" name='body' placeholder='body' required)
 				br
-				input(type='submit' value='Create Post' id='submit')
+				input.btn(type='submit' value='Create Post' id='submit')
 				br
-				a(href='/posts') Back to List of Posts
 		script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/js/materialize.min.js")

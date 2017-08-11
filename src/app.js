@@ -66,6 +66,7 @@ Posts.belongsTo(User);
 Comments.belongsTo(User);
 Comments.belongsTo(Posts);
 
+//syncing models
 sequelize.sync();
 
 //Routing, login form is on index page
@@ -80,6 +81,7 @@ app.get('/register', (req,res) => {
   res.render('register');
 })
 
+//creating new user in database and starting session for the user and sending them to their profile
 app.post('/register', (req,res) => {
   User.create({
     username: req.body.username,
@@ -92,6 +94,7 @@ app.post('/register', (req,res) => {
   })
 });
 
+//go to the user profile page with dynamic route, it will show the user's username
 app.get('/users/:username', (req,res) => {
   const user = req.session.user;
   if (user === undefined) {
@@ -103,10 +106,11 @@ app.get('/users/:username', (req,res) => {
   }
 });
 
+//login with user verification
 app.post('/login', (req, res) => {
   if (req.body.username.length === 0) {
     res.redirect('/?message=' + encodeURIComponent("Please fill in your username."))
-    return;
+    return;                                                //checking if user has filled in both fields
   }
   if (req.body.password.length === 0) {
     res.redirect('/?message=' + encodeURIComponent("Please fill in your password."))
@@ -117,25 +121,25 @@ app.post('/login', (req, res) => {
 
   User.findOne({
     where: {
-      username: req.body.username
+      username: req.body.username     //verifying if user exists
     }
   })
   .then((user) => {
     if (user !== null && password === user.password) {
       req.session.user = user;
-      res.redirect(`/users/${user.username}`);
+      res.redirect(`/users/${user.username}`);          //if they exist and info is correct, start session for user
     } else {
-      res.redirect('/?message=' + encodeURIComponent("Invalid email or password."));
+      res.redirect('/?message=' + encodeURIComponent("Invalid email or password.")); //if incorrect showing error to user
     }
   })
   .catch((error) => {
-    console.error(error);
+    console.error(error);           //if any error occurs showing an invalid message to user
     res.redirect('/?message=' + encodeURIComponent("Invalid email or password."));
   });
 });
 
 app.get('/logout', (req, res) =>{
-	req.session.destroy(function(error) {
+	req.session.destroy(function(error) {    //logging out user and destorying session
 		if(error) {
 			throw error;
 		}
@@ -145,10 +149,10 @@ app.get('/logout', (req, res) =>{
 
 app.get('/posts', (req, res)=> {
   const user = req.session.user;
-  if (user === undefined) {
+  if (user === undefined) {           //checking if user is logged in
     res.redirect('/?message=' + encodeURIComponent("Please log in"));
   } else {
-      User.findAll()
+      User.findAll()                    //finding all users and posts in the database, rendering all across to pug file
       .then((users) => {
         Posts.findAll()
         .then((allPosts) => {
@@ -176,11 +180,11 @@ app.post('/posts/new', (req, res) => {
   const body = req.body.body;
   const userId = req.session.user.id;
   User.findOne({
-    where: {username: user}
+    where: {username: user}           //making sure current user is referenced, attaching logged in user's data to post being created
   })
   .then((user) => {
     return user.createPost({
-      title: title,
+      title: title,                 //creating a post with current user info attached
       body: body,
       userId: userId
     })
@@ -198,11 +202,11 @@ app.get('/posts/user', (req, res) => {
   const userID = req.session.user.id;
   Posts.findAll({
     where: {
-      userId: userID
+      userId: userID                //finding posts with current logged in user attached, aka the ones the current user posted
     }
   })
   .then((myPosts) => {
-    res.render('userposts', {
+    res.render('userposts', {     //then rendering them across to the pug file
       userPosts: myPosts,
       user: user
     })
@@ -214,22 +218,22 @@ app.get('/posts/user', (req, res) => {
 
 app.get('/posts/:postId', function(req, res){
 	const postId = req.params.postId;
-  const user = req.session.user;
-	if (user === undefined) {
+  const user = req.session.user;        //creating page for each individual post
+	if (user === undefined) {           //checking if user is logged in
         res.redirect('/?message=' + encodeURIComponent("Please log in."));
   } else {
     User.findAll()
     .then((users) => {
       Posts.findOne({
         where: {
-          id: postId
+          id: postId          //finding all users and posts, including comments in the posts
         },
         include: [{
           model: Comments,
           as: 'comments'
         }]
       })
-      .then(function(post){
+      .then(function(post){     //then rendering them across to the pug file
         console.log(post);
     		res.render("post", {post: post, postId: postId, users: users});
     	})
@@ -241,14 +245,14 @@ app.get('/posts/:postId', function(req, res){
 });
 
 app.post('/comments', (req, res) => {
-  const user = req.session.user;
+  const user = req.session.user;            //for creating a new comment
   const commentText = req.body.body;
   const postComment = req.body.postId;
-  if (user === undefined) {
+  if (user === undefined) {           //checking if user is logged in
     res.redirect('/?message=' + encodeURIComponent("Please log in"));
   } else {
     User.findOne({
-      where: {username: user.username}
+      where: {username: user.username}    //attaching logged in user's data to comment being created
     })
     .then((user) => {
       return user.createComment({

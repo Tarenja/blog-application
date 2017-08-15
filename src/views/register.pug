@@ -13,9 +13,11 @@ html
 		div.container
 			h3 Sign up form
 				form.col.s12(action='/register', method='POST', autocomplete='off')
-					input(type='text', name='username',placeholder='Enter your username')
-					input(type='text', name='email', placeholder='Enter your email')
-					input(type='password', name='password', placeholder='Choose a password')
+					input(minlength='3', required, type='text', name='username',placeholder='Enter your username')
+					input(minlength='3', required, type='text', name='email', placeholder='Enter your email')
+					input(required, minlength='8', type='password', name='password', placeholder='Choose a password')
+					input(required, type='password', name='password2', placeholder='Confirm Password')
 					button.btn(type="submit", name="submit") Create New Account
 			br
+			h2 #{message}
 		script(src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.1/js/materialize.min.js")

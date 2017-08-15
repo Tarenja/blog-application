@@ -84,22 +84,29 @@ app.get('/register', (req,res) => {
 
 //creating new user in database and starting session for the user and sending them to their profile
 app.post('/register', (req,res) => {
-  const password = req.body.password;
-  bcrypt.hash(password, 8)
-  .then((hash) => {
-    User.create({
-      username: req.body.username,
-      email: req.body.email,
-      password: hash
+  if (req.body.password === req.body.password2) {
+    const password = req.body.password;
+    bcrypt.hash(password, 8)
+    .then((hash) => {
+      User.create({
+        username: req.body.username,
+        email: req.body.email,
+        password: hash
+      })
+      .then((user) => {
+        req.session.user = user;
+        res.redirect(`/users/${user.username}`)
+      })
     })
-    .then((user) => {
-      req.session.user = user;
-      res.redirect(`/users/${user.username}`)
+    .catch((error) => {
+      console.error(error);
+      res.redirect('/?message=' + encodeURIComponent('Error has occurred. Please check the server.'));
     })
-  })
-  .catch((error) => {
-    console.error(error);
-  })
+  } else {
+    res.render('register',
+    {message: "The passwords don't match!"
+    })
+  };
 });
 
 //go to the user profile page with dynamic route, it will show the user's username
@@ -176,6 +183,7 @@ app.get('/posts', (req, res)=> {
         })
       .catch((error) => {
           console.error(error);
+          res.redirect('/?message=' + encodeURIComponent('Error has occurred. Please check the server.'));
       });
     })
 
@@ -225,6 +233,7 @@ app.get('/posts/user', (req, res) => {
   })
   .catch((error) => {
       console.error(error);
+      res.redirect('/?message=' + encodeURIComponent('Error has occurred. Please check the server.'));
   });
 });
 
@@ -251,6 +260,7 @@ app.get('/posts/:postId', function(req, res){
     	})
       .catch((error) => {
         console.error(error);
+        res.redirect('/?message=' + encodeURIComponent('Error has occurred. Please check the server.'));
       });
     });
   };

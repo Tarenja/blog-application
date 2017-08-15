@@ -3,6 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const Sequelize = require('sequelize');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
 
 //configuring and initializing modules
 const app = express();
@@ -83,14 +84,21 @@ app.get('/register', (req,res) => {
 
 //creating new user in database and starting session for the user and sending them to their profile
 app.post('/register', (req,res) => {
-  User.create({
-    username: req.body.username,
-    email: req.body.email,
-    password: req.body.password
+  const password = req.body.password;
+  bcrypt.hash(password, 8)
+  .then((hash) => {
+    User.create({
+      username: req.body.username,
+      email: req.body.email,
+      password: hash
+    })
+    .then((user) => {
+      req.session.user = user;
+      res.redirect(`/users/${user.username}`)
+    })
   })
-  .then((user) => {
-    req.session.user = user;
-    res.redirect(`/users/${user.username}`)
+  .catch((error) => {
+    console.error(error);
   })
 });
 
@@ -125,16 +133,20 @@ app.post('/login', (req, res) => {
     }
   })
   .then((user) => {
-    if (user !== null && password === user.password) {
-      req.session.user = user;
-      res.redirect(`/users/${user.username}`);          //if they exist and info is correct, start session for user
-    } else {
-      res.redirect('/?message=' + encodeURIComponent("Invalid email or password.")); //if incorrect showing error to user
-    }
-  })
+    const hash = user.password;
+    bcrypt.compare(password, hash)
+    .then((result) => {
+      if (user !== null && result === true) {
+        req.session.user = user;
+        res.redirect(`/users/${user.username}`);          //if they exist and info is correct, start session for user
+      } else {
+        res.redirect('/?message=' + encodeURIComponent("Invalid email or password.")); //if incorrect showing error to user
+      }
+    })
   .catch((error) => {
     console.error(error);           //if any error occurs showing an invalid message to user
     res.redirect('/?message=' + encodeURIComponent("Invalid email or password."));
+  });
   });
 });
 
